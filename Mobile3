@@ -1,0 +1,104 @@
+-- Скрипт для плавного изменения WalkSpeed между 16 и 30 (для эксплойта)
+-- Создано: 02 мая 2025
+-- Предназначен для образовательных целей в контролируемой среде
+
+-- Услуги
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Локальный игрок
+local player = Players.LocalPlayer
+if not player then return end
+local character = player.Character
+if not character then return end
+local humanoid = character:FindFirstChild("Humanoid")
+if not humanoid then return end
+
+-- Настройки
+local MIN_SPEED = 16 -- Минимальная скорость (стандартная)
+local MAX_SPEED = 30 -- Максимальная скорость
+local SPEED_CHANGE_RATE = 2 -- Скорость изменения (ед./сек.)
+local CHECK_INTERVAL = 0.05 -- Интервал проверки
+local THRESHOLD = 5 -- Порог сброса античитом
+
+-- Переменные
+local isHacking = false
+local currentSpeed = humanoid.WalkSpeed
+local targetSpeed = MAX_SPEED
+local lastKnownSpeed = MIN_SPEED
+
+-- Функция для плавного изменения скорости
+local function smoothChangeSpeed()
+    spawn(function()
+        while isHacking do
+            -- Вычисляем разницу для плавного изменения
+            local delta = SPEED_CHANGE_RATE * CHECK_INTERVAL
+            if currentSpeed < targetSpeed then
+                currentSpeed = math.min(currentSpeed + delta, targetSpeed)
+            else
+                currentSpeed = math.max(currentSpeed - delta, targetSpeed)
+            end
+            humanoid.WalkSpeed = currentSpeed
+            lastKnownSpeed = currentSpeed
+
+            -- Если достигли цели, меняем направление
+            if math.abs(currentSpeed - targetSpeed) < 0.1 then
+                targetSpeed = (targetSpeed == MAX_SPEED) and MIN_SPEED or MAX_SPEED
+            end
+
+            -- Проверка на сброс античитом
+            if humanoid.WalkSpeed < lastKnownSpeed - THRESHOLD then
+                print("Обнаружен сброс скорости античитом! Коррекция...")
+                humanoid.WalkSpeed = lastKnownSpeed
+            end
+
+            wait(CHECK_INTERVAL)
+        end
+    end)
+end
+
+-- Активация хака
+local function activateHack()
+    if not isHacking then
+        print("Активация хака скорости...")
+        isHacking = true
+        currentSpeed = humanoid.WalkSpeed
+        targetSpeed = MAX_SPEED
+        smoothChangeSpeed()
+    end
+end
+
+-- Деактивация хака
+local function deactivateHack()
+    if isHacking then
+        print("Деактивация хака скорости...")
+        isHacking = false
+        humanoid.WalkSpeed = MIN_SPEED
+        currentSpeed = MIN_SPEED
+        targetSpeed = MAX_SPEED
+    end
+end
+
+-- Активация/деактивация по клавише "H"
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.H then
+        if isHacking then
+            deactivateHack()
+        else
+            activateHack()
+        end
+    end
+end)
+
+-- Обновление при смене персонажа
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    isHacking = false
+    humanoid.WalkSpeed = MIN_SPEED
+    currentSpeed = MIN_SPEED
+    targetSpeed = MAX_SPEED
+end)
+
+print("Скрипт загружен. Нажми H для активации/деактивации хака.")
