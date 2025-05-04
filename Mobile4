@@ -1,0 +1,228 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
+
+local player = Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "CompactGalaxySpy"
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 350, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+mainFrame.ClipsDescendants = true
+
+local gradient = Instance.new("UIGradient", mainFrame)
+gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 50, 120)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 120, 180)), ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 0, 120))}
+
+local titleBar = Instance.new("TextLabel", mainFrame)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(0, 30, 80)
+titleBar.Text = "Galaxy Spy"
+titleBar.TextColor3 = Color3.fromRGB(0, 200, 255)
+titleBar.TextSize = 16
+
+local dragData = {dragging = false, startPos = nil, startMouse = nil}
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragData.dragging = true
+        dragData.startPos = mainFrame.Position
+        dragData.startMouse = input.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragData.dragging = false
+            end
+        end)
+    end
+end)
+titleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragData.dragging then
+        local delta = input.Position - dragData.startMouse
+        mainFrame.Position = UDim2.new(dragData.startPos.X.Scale, dragData.startPos.X.Offset + delta.X, dragData.startPos.Y.Scale, dragData.startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local closeButton = Instance.new("TextButton", titleBar)
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -20, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextSize = 12
+closeButton.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+-- Search Bar
+local searchBar = Instance.new("TextBox", mainFrame)
+searchBar.Size = UDim2.new(0, 200, 0, 25)
+searchBar.Position = UDim2.new(0, 10, 0, 35)
+searchBar.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+searchBar.Text = "Search remotes..."
+searchBar.TextColor3 = Color3.fromRGB(0, 200, 255)
+searchBar.TextSize = 10
+searchBar.ClearTextOnFocus = true
+
+local remoteFrame = Instance.new("ScrollingFrame", mainFrame)
+remoteFrame.Size = UDim2.new(0, 330, 0, 75)
+remoteFrame.Position = UDim2.new(0, 10, 0, 65)
+remoteFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+remoteFrame.ScrollBarThickness = 4
+remoteFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
+
+local remoteLayout = Instance.new("UIListLayout", remoteFrame)
+remoteLayout.FillDirection = Enum.FillDirection.Vertical
+remoteLayout.Padding = UDim.new(0, 5)
+
+local argsInput = Instance.new("TextBox", mainFrame)
+argsInput.Size = UDim2.new(0, 200, 0, 25)
+argsInput.Position = UDim2.new(0, 10, 0, 145)
+argsInput.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+argsInput.Text = "Enter args (space-separated)"
+argsInput.TextColor3 = Color3.fromRGB(0, 200, 255)
+argsInput.TextSize = 10
+argsInput.ClearTextOnFocus = true
+
+local logFrame = Instance.new("ScrollingFrame", mainFrame)
+logFrame.Size = UDim2.new(0, 330, 0, 115)
+logFrame.Position = UDim2.new(0, 10, 0, 175)
+logFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 30)
+logFrame.ScrollBarThickness = 4
+logFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
+
+local logLayout = Instance.new("UIListLayout", logFrame)
+logLayout.Padding = UDim.new(0, 3)
+
+local buttonFrame = Instance.new("Frame", mainFrame)
+buttonFrame.Size = UDim2.new(0, 330, 0, 40)
+buttonFrame.Position = UDim2.new(0, 10, 1, -50)
+buttonFrame.BackgroundTransparency = 1
+
+local buttonUIList = Instance.new("UIListLayout", buttonFrame)
+buttonUIList.FillDirection = Enum.FillDirection.Horizontal
+buttonUIList.Padding = UDim.new(0, 5)
+
+local logMessages = {}
+local remoteList = {}
+local selectedRemote = nil
+
+local function addLog(message, color)
+    local logLabel = Instance.new("TextLabel", logFrame)
+    logLabel.Size = UDim2.new(1, -10, 0, 0)
+    logLabel.BackgroundTransparency = 1
+    logLabel.Text = "[" .. os.date("%H:%M:%S") .. "] " .. message
+    logLabel.TextColor3 = color or Color3.fromRGB(0, 200, 255)
+    logLabel.TextSize = 10
+    logLabel.TextWrapped = true
+    logLabel.TextXAlignment = Enum.TextXAlignment.Left
+    local textBounds = TextService:GetTextSize(logLabel.Text, logLabel.TextSize, logLabel.Font, Vector2.new(logFrame.AbsoluteSize.X - 10, math.huge))
+    logLabel.Size = UDim2.new(1, -10, 0, textBounds.Y)
+    table.insert(logMessages, logLabel.Text)
+    logFrame.CanvasSize = UDim2.new(0, 0, 0, logLayout.AbsoluteContentSize.Y)
+    logFrame.CanvasPosition = Vector2.new(0, logFrame.CanvasSize.Y.Offset)
+end
+
+local function scanRemotes()
+    remoteList = {}
+    local function searchInstance(instance)
+        local success, children = pcall(function() return instance:GetChildren() end)
+        if not success then return end
+        for _, child in pairs(children) do
+            if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
+                table.insert(remoteList, {object = child, name = child.Name, path = child:GetFullName(), type = child.ClassName})
+            end
+            searchInstance(child)
+        end
+    end
+    searchInstance(game)
+    addLog("Scanned " .. #remoteList .. " remotes.", Color3.fromRGB(0, 255, 0))
+    updateRemoteButtons()
+end
+
+local function updateRemoteButtons()
+    for _, child in pairs(remoteFrame:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    local filter = searchBar.Text:lower()
+    if filter == "search remotes..." then filter = "" end
+    for _, remoteData in pairs(remoteList) do
+        if filter == "" or remoteData.name:lower():find(filter) then
+            local button = Instance.new("TextButton", remoteFrame)
+            button.Size = UDim2.new(1, -10, 0, 30)
+            button.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+            button.Text = remoteData.name .. " (" .. remoteData.type:sub(1, 4) .. ")"
+            button.TextColor3 = Color3.fromRGB(0, 200, 255)
+            button.TextSize = 10
+            button.TextXAlignment = Enum.TextXAlignment.Left
+            button.MouseButton1Click:Connect(function()
+                selectedRemote = remoteData
+                logMessages = {}
+                for _, child in pairs(logFrame:GetChildren()) do if child:IsA("TextLabel") then child:Destroy() end end
+                local remote = remoteData.object
+                if remote:IsA("RemoteEvent") then
+                    local originalFire = remote.FireServer
+                    remote.FireServer = function(self, ...) local args = {...} addLog("Fired: " .. remote.Name .. " - Args: " .. table.concat(args, ", "), Color3.fromRGB(0, 150, 255)) return originalFire(self, ...) end
+                elseif remote:IsA("RemoteFunction") then
+                    local originalInvoke = remote.InvokeServer
+                    remote.InvokeServer = function(self, ...) local args = {...} addLog("Invoked: " .. remote.Name .. " - Args: " .. table.concat(args, ", "), Color3.fromRGB(0, 150, 255)) return originalInvoke(self, ...) end
+                end
+                addLog("Selected: " .. remoteData.name, Color3.fromRGB(0, 255, 0))
+            end)
+            local hoverTween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 70)})
+            button.MouseEnter:Connect(function() hoverTween:Play() end)
+            button.MouseLeave:Connect(function() hoverTween:Cancel(); button.BackgroundColor3 = Color3.fromRGB(30, 30, 50) end)
+        end
+    end
+    remoteFrame.CanvasSize = UDim2.new(0, 0, 0, remoteLayout.AbsoluteContentSize.Y)
+end
+
+searchBar:GetPropertyChangedSignal("Text"):Connect(function()
+    updateRemoteButtons()
+end)
+
+local function runCode()
+    if not selectedRemote then addLog("No remote selected!", Color3.fromRGB(255, 0, 0)) return end
+    local argsText = argsInput.Text
+    local args = {}
+    for arg in argsText:gmatch("%S+") do local num = tonumber(arg) table.insert(args, num or arg) end
+    if #args == 0 then table.insert(args, "") end
+    local remote = selectedRemote.object
+    if remote:IsA("RemoteEvent") then
+        local success, result = pcall(function() remote:FireServer(unpack(args)) end)
+        addLog("Ran: " .. selectedRemote.name .. " - Args: " .. argsText .. " - " .. (success and "Success" or "Failed: " .. tostring(result)), success and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+    elseif remote:IsA("RemoteFunction") then
+        local success, result = pcall(function() return remote:InvokeServer(unpack(args)) end)
+        addLog("Ran: " .. selectedRemote.name .. " - Args: " .. argsText .. " - Result: " .. tostring(result), success and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+    end
+end
+
+local function copyCode()
+    if not selectedRemote then addLog("No remote selected!", Color3.fromRGB(255, 0, 0)) return end
+    local code = selectedRemote.object:IsA("RemoteEvent") and "remote:FireServer(" .. argsInput.Text .. ")" or "remote:InvokeServer(" .. argsInput.Text .. ")"
+    setclipboard(code)
+    addLog("Copied code for " .. selectedRemote.name, Color3.fromRGB(0, 255, 0))
+end
+
+local buttons = {
+    {text = "Refresh", func = function() scanRemotes() end},
+    {text = "Run Code", func = runCode},
+    {text = "Copy Code", func = copyCode},
+    {text = "Clear", func = function() logMessages = {}; for _, child in pairs(logFrame:GetChildren()) do if child:IsA("TextLabel") then child:Destroy() end end end},
+}
+
+for _, btnData in pairs(buttons) do
+    local button = Instance.new("TextButton", buttonFrame)
+    button.Size = UDim2.new(0, 70, 0, 30)
+    button.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    button.Text = btnData.text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 12
+    button.MouseButton1Click:Connect(btnData.func)
+    local hoverTween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 150, 250)})
+    button.MouseEnter:Connect(function() hoverTween:Play() end)
+    button.MouseLeave:Connect(function() hoverTween:Cancel(); button.BackgroundColor3 = Color3.fromRGB(0, 100, 200) end)
+end
+
+addLog("Compact Galaxy Spy Initialized.", Color3.fromRGB(0, 200, 255))
+scanRemotes()
