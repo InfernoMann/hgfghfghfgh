@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Plugin Download</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #1a0033, #2a004d, #1a0022);
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(0, 0, 51, 0.2);
+            box-shadow: 0 0 30px rgba(0, 0, 255, 0.8),
+                       0 0 60px rgba(0, 0, 255, 0.6),
+                       0 0 90px rgba(0, 0, 255, 0.4);
+            animation: glow 2.5s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 15px rgba(0, 0, 255, 0.8); }
+            to { box-shadow: 0 0 45px rgba(0, 0, 255, 1); }
+        }
+        h1, p {
+            color: #0000ff;
+            text-shadow: 0 0 15px #0000ff, 0 0 30px #0000ff, 0 0 45px #0000ff;
+            animation: fadeIn 2s ease-in-out;
+            font-family: 'Arial', sans-serif;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 20px 40px;
+            margin-top: 30px;
+            font-size: 20px;
+            color: #0000ff;
+            background: transparent;
+            border: 3px solid #0000ff;
+            border-radius: 30px;
+            text-decoration: none;
+            text-transform: uppercase;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 15px #0000ff, 0 0 30px #0000ff, 0 0 45px #0000ff;
+            position: relative;
+            z-index: 1;
+        }
+        .download-btn:hover {
+            background: #0000ff;
+            color: #1a0033;
+            box-shadow: 0 0 30px #0000ff, 0 0 60px #0000ff, 0 0 90px #0000ff;
+            transform: scale(1.15);
+        }
+        .download-btn:active {
+            transform: scale(0.9);
+        }
+        /* Decorative Elements */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 255, 0.3);
+            animation: pulse 4s infinite;
+        }
+        .decoration-1 { width: 150px; height: 150px; top: 10%; left: 10%; }
+        .decoration-2 { width: 100px; height: 100px; bottom: 15%; right: 15%; animation-delay: 1s; }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+        /* Atmospheric Particles */
+        .particles {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(0, 0, 255, 0.6);
+            border-radius: 50%;
+            animation: float 8s infinite;
+        }
+        .particles:nth-child(2) { left: 20%; animation-delay: 2s; }
+        .particles:nth-child(3) { right: 20%; top: 30%; animation-delay: 4s; }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-50px) scale(1.5); opacity: 0.9; }
+            100% { transform: translateY(0) scale(1); opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hello Everyone</h1>
+        <p>We Created plugin that's help essentials x!</p>
+        <a href="Better-EssentialsX-0.0.1.jar" download="Better-EssentialsX-0.0.1.jar" class="download-btn">Download Now</a>
+    </div>
+    <div class="decoration decoration-1"></div>
+    <div class="decoration decoration-2"></div>
+    <div class="particles"></div>
+    <div class="particles"></div>
+    <div class="particles"></div>
+</body>
+</html>
