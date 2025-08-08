@@ -1,118 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Plugin Download</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(45deg, #1a0033, #2a004d, #1a0022);
-            animation: gradientBG 15s ease infinite;
-            overflow: hidden;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .container {
-            text-align: center;
-            padding: 30px;
-            border-radius: 20px;
-            background: rgba(0, 0, 51, 0.2);
-            box-shadow: 0 0 30px rgba(0, 0, 255, 0.8),
-                       0 0 60px rgba(0, 0, 255, 0.6),
-                       0 0 90px rgba(0, 0, 255, 0.4);
-            animation: glow 2.5s ease-in-out infinite alternate;
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 15px rgba(0, 0, 255, 0.8); }
-            to { box-shadow: 0 0 45px rgba(0, 0, 255, 1); }
-        }
-        h1, p {
-            color: #0000ff;
-            text-shadow: 0 0 15px #0000ff, 0 0 30px #0000ff, 0 0 45px #0000ff;
-            animation: fadeIn 2s ease-in-out;
-            font-family: 'Arial', sans-serif;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .download-btn {
-            display: inline-block;
-            padding: 20px 40px;
-            margin-top: 30px;
-            font-size: 20px;
-            color: #0000ff;
-            background: transparent;
-            border: 3px solid #0000ff;
-            border-radius: 30px;
-            text-decoration: none;
-            text-transform: uppercase;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            box-shadow: 0 0 15px #0000ff, 0 0 30px #0000ff, 0 0 45px #0000ff;
-            position: relative;
-            z-index: 1;
-        }
-        .download-btn:hover {
-            background: #0000ff;
-            color: #1a0033;
-            box-shadow: 0 0 30px #0000ff, 0 0 60px #0000ff, 0 0 90px #0000ff;
-            transform: scale(1.15);
-        }
-        .download-btn:active {
-            transform: scale(0.9);
-        }
-        .decoration {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(0, 0, 255, 0.3);
-            animation: pulse 4s infinite;
-        }
-        .decoration-1 { width: 150px; height: 150px; top: 10%; left: 10%; }
-        .decoration-2 { width: 100px; height: 100px; bottom: 15%; right: 15%; animation-delay: 1s; }
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(0.8); opacity: 0.5; }
-        }
-        .particles {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: rgba(0, 0, 255, 0.6);
-            border-radius: 50%;
-            animation: float 8s infinite;
-        }
-        .particles:nth-child(2) { left: 20%; animation-delay: 2s; }
-        .particles:nth-child(3) { right: 20%; top: 30%; animation-delay: 4s; }
-        @keyframes float {
-            0% { transform: translateY(0) scale(1); opacity: 0.6; }
-            50% { transform: translateY(-50px) scale(1.5); opacity: 0.9; }
-            100% { transform: translateY(0) scale(1); opacity: 0.6; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Hello Everyone</h1>
-        <p>We Created plugin that's help essentials x!</p>
-        <a href="https://dropmefiles.com/jKjYJ" download="Better-EssentialsX-0.0.1.jar" class="download-btn">Download Now</a>
+  <section id="about">
+    <h2>О нас</h2>
+    <p>Мы создаём цифровые миры, наполненные светом, стилем и инновациями. Наши проекты вдохновлены эстетикой будущего и энергией неона.</p>
+    <button class="btn">Узнать больше</button>
+  </section>
+
+  <section id="gallery">
+    <h2>Галерея</h2>
+    <div class="gallery">
+      <div class="image-box"><img src="https://via.placeholder.com/300x200/00f0ff/000000?text=1" alt="Image 1"></div>
+      <div class="image-box"><img src="https://via.placeholder.com/300x200/00f0ff/000000?text=2" alt="Image 2"></div>
+      <div class="image-box"><img src="https://via.placeholder.com/300x200/00f0ff/000000?text=3" alt="Image 3"></div>
     </div>
-    <div class="decoration decoration-1"></div>
-    <div class="decoration decoration-2"></div>
-    <div class="particles"></div>
-    <div class="particles"></div>
-    <div class="particles"></div>
+  </section>
+
+  <section id="contact">
+    <h2>Контакты</h2>
+    <form class="contact-form">
+      <input type="text" placeholder="Ваше имя" required>
+      <input type="email" placeholder="Email" required>
+      <textarea placeholder="Сообщение" rows="5" required></textarea>
+      <button type="submit" class="btn">Отправить</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>© 2025 ЗД Неон Мир</p>
+    <div class="footer-links">
+      <a href="#">Политика конфиденциальности</a>
+      <a href="#">Условия использования</a>
+    </div>
+  </footer>
+
+  <style>
+    .gallery {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .image-box {
+      border: 2px solid #00f0ff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00f0ff;
+      transition: transform 0.3s;
+    }
+
+    .image-box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #00f0ff;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #00f0ff;
+      background-color: #000010;
+      color: #00f0ff;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00f0ff;
+    }
+
+    footer {
+      background-color: rgba(0, 0, 30, 0.8);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px #00f0ff;
+      margin-top: 50px;
+    }
+
+    footer p {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .footer-links a {
+      color: #00f0ff;
+      margin: 0 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: 0.3s;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+      color: #00ffff;
+    }
+
+    /* Декоративные элементы */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, #00f0ff33 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 3rem;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .gallery {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
 </body>
 </html>
