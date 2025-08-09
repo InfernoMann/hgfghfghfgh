@@ -1,164 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Trunkade AI Terminal</title>
-  <style>
-    body {
-      background-color: #0d0d0d;
-      color: #ff1a1a;
-      font-family: 'Courier New', monospace;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 2px solid #ff1a1a;
-      box-shadow: 0 0 20px #ff1a1a;
-      background-color: #1a1a1a;
-    }
-    .title {
-      text-align: center;
-      font-size: 2em;
-      text-shadow: 0 0 10px #ff1a1a;
-    }
-    .chat-window {
-      height: 500px;
-      overflow-y: auto;
-      background-color: #000;
-      padding: 10px;
-      border: 1px solid #ff1a1a;
-      margin-bottom: 10px;
-    }
-    .chat-window div {
-      margin: 5px 0;
-    }
-    form {
-      display: flex;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      background-color: #111;
-      border: 1px solid #ff1a1a;
-      color: #ff1a1a;
-    }
-    button {
-      padding: 10px;
-      background-color: #ff1a1a;
-      color: #000;
-      border: none;
-      cursor: pointer;
-    }
-    .mode-toggle {
-      text-align: right;
-      margin-bottom: 10px;
-    }
-    .system-message {
-      color: #ff6666;
-      font-style: italic;
-    }
-    .evil {
-      color: #ff0000;
-      text-shadow: 0 0 5px #ff0000;
-    }
-    .normal {
-      color: #ff1a1a;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>3D Shooter на three.js</title>
+<style>
+  body { margin: 0; overflow: hidden; background: #000; }
+  #info { position: absolute; top: 10px; left: 10px; color: #fff; font-family: monospace; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="title">Trunkade AI Terminal</h1>
-    <div class="mode-toggle">
-      <label>
-        <input type="checkbox" id="evilToggle" />
-        <span>Evil GPT Mode</span>
-      </label>
-    </div>
-    <div id="chatWindow" class="chat-window"></div>
-    <form id="chatForm">
-      <input type="text" id="userInput" placeholder="Type your command..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
-  </div>
-  <script>
-    const chatWindow = document.getElementById("chatWindow");
-    const chatForm = document.getElementById("chatForm");
-    const userInput = document.getElementById("userInput");
-    const evilToggle = document.getElementById("evilToggle");
+<div id="info">Очки: <span id="score">0</span></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/PointerLockControls.js"></script>
 
-    let chatHistory = JSON.parse(localStorage.getItem("trunkadeHistory")) || [];
+<script>
+// === Основные переменные и сцена ===
+let scene, camera, renderer, controls;
+let player, bullets = [], enemies = [];
+let score = 0;
+const scoreElem = document.getElementById('score');
 
-    function renderMessage(sender, message, isSystem = false) {
-      const time = new Date().toLocaleString();
-      const msgDiv = document.createElement("div");
-      msgDiv.className = isSystem ? "system-message" : (sender === "Trunkade AI" && evilToggle.checked ? "evil" : "normal");
-      msgDiv.innerHTML = `<strong>[${time}] ${sender}:</strong> ${message}`;
-      chatWindow.appendChild(msgDiv);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+init();
+animate();
+
+function init() {
+  // Сцена
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111111);
+
+  // Камера
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+  // Рендерер
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Управление (PointerLockControls)
+  controls = new THREE.PointerLockControls(camera, document.body);
+  document.body.addEventListener('click', () => {
+    controls.lock();
+  });
+
+  // Свет
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(5,10,7);
+  scene.add(light);
+
+  const ambient = new THREE.AmbientLight(0x404040);
+  scene.add(ambient);
+
+  // Игрок — невидимый объект, камера будет связана с ним
+  player = new THREE.Object3D();
+  player.position.set(0,1.6,0);  // рост человека ~1.6 метра
+  scene.add(player);
+  player.add(camera);
+
+  // Пол (простая плоскость)
+  const floorGeo = new THREE.PlaneGeometry(100, 100);
+  const floorMat = new THREE.MeshStandardMaterial({color:0x222222});
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI/2;
+  scene.add(floor);
+
+  // Враги (создадим 10 штук)
+  for(let i=0; i<10; i++) {
+    spawnEnemy();
+  }
+
+  // Обработка ввода
+  initInput();
+
+  window.addEventListener('resize', onWindowResize);
+}
+
+// Обработка изменения размера окна
+function onWindowResize() {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Ввод с клавиатуры
+const keys = {};
+function initInput() {
+  document.addEventListener('keydown', e => keys[e.code] = true);
+  document.addEventListener('keyup', e => keys[e.code] = false);
+
+  // Стрельба по клику мыши
+  document.addEventListener('mousedown', shoot);
+}
+
+// Функция создания врага
+function spawnEnemy() {
+  const size = 0.8;
+  const geometry = new THREE.BoxGeometry(size, size, size);
+  const material = new THREE.MeshStandardMaterial({color:0xff0000});
+  const enemy = new THREE.Mesh(geometry, material);
+
+  // Случайная позиция на расстоянии 20-30 по окружности от игрока
+  const angle = Math.random()*Math.PI*2;
+  const radius = 20 + Math.random()*10;
+  enemy.position.set(Math.cos(angle)*radius, size/2, Math.sin(angle)*radius);
+
+  enemy.userData = {
+    health: 3,
+    speed: 1 + Math.random()*0.5
+  };
+
+  scene.add(enemy);
+  enemies.push(enemy);
+}
+
+// Стрельба — создаём пулю
+function shoot() {
+  if (!controls.isLocked) return;
+
+  const bulletGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+  const bulletMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
+  const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+
+  // Пуля начинается из позиции камеры
+  bullet.position.copy(camera.getWorldPosition(new THREE.Vector3()));
+
+  // Направление — куда смотрит камера
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+  bullet.userData = {
+    velocity: direction.multiplyScalar(30),  // скорость пули
+    lifeTime: 2  // секунда жизни
+  };
+
+  scene.add(bullet);
+  bullets.push(bullet);
+}
+
+// Обновление пуль
+function updateBullets(delta) {
+  for(let i = bullets.length-1; i >= 0; i--) {
+    const b = bullets[i];
+    b.position.addScaledVector(b.userData.velocity, delta);
+    b.userData.lifeTime -= delta;
+    if (b.userData.lifeTime <= 0) {
+      scene.remove(b);
+      bullets.splice(i,1);
+      continue;
     }
-
-    function respondToUser(input) {
-      const isEvil = evilToggle.checked;
-      let response = "";
-
-      if (input === "/clear") {
-        chatWindow.innerHTML = "";
-        chatHistory = [];
-        localStorage.removeItem("trunkadeHistory");
-        renderMessage("System", "Chat cleared.", true);
-        return;
+    // Проверяем столкновения с врагами
+    for(let j = enemies.length-1; j >= 0; j--) {
+      const enemy = enemies[j];
+      if (enemy.position.distanceTo(b.position) < 0.6) {
+        enemy.userData.health--;
+        if (enemy.userData.health <= 0) {
+          scene.remove(enemy);
+          enemies.splice(j,1);
+          score++;
+          scoreElem.textContent = score;
+          spawnEnemy();  // создаём нового врага
+        }
+        scene.remove(b);
+        bullets.splice(i,1);
+        break;
       }
-
-      if (input === "/help") {
-        response = "Available commands: /clear, /evil, /help, /time, /joke, /root, /hack, /matrix, /glitch";
-      } else if (input === "/time") {
-        response = `🕒 Current time: ${new Date().toLocaleString()}`;
-      } else if (input === "/joke") {
-        response = isEvil
-          ? "😈 Joke? Your existence is the punchline."
-          : "😂 Why did the AI cross the road? Because it was trained on chicken data.";
-      } else if (input === "/root") {
-        response = isEvil
-          ? "🔐 Accessing root protocols... Welcome back, overlord."
-          : "🛡️ Root access denied. You are not authorized.";
-      } else if (input === "/hack") {
-        response = isEvil
-          ? "💀 Initiating system breach... All firewalls melting."
-          : "🧠 Hack simulation: harmless. No real systems affected.";
-      } else if (input === "/matrix") {
-        response = "🧪 You see green code raining down... Welcome to the Matrix.";
-      } else if (input === "/glitch") {
-        response = "⚠️ System glitch detected... Rebooting consciousness...";
-      } else {
-        response = isEvil
-          ? `😈 You dare ask: "${input}"? Pathetic. Here's your answer: chaos.`
-          : `🤖 You said: "${input}". Here's a helpful response from Trunkade AI.`;
-      }
-
-      renderMessage("Trunkade AI", response);
-      chatHistory.push({ sender: "User", message: input, time: Date.now() });
-      chatHistory.push({ sender: "Trunkade AI", message: response, time: Date.now() });
-      localStorage.setItem("trunkadeHistory", JSON.stringify(chatHistory));
     }
+  }
+}
 
-    chatForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = userInput.value.trim();
-      if (input) {
-        renderMessage("User", input);
-        respondToUser(input);
-        userInput.value = "";
-      }
-    });
+// Обновление врагов (движение к игроку)
+function updateEnemies(delta) {
+  const playerPos = player.position;
+  enemies.forEach(enemy => {
+    const dir = new THREE.Vector3().subVectors(playerPos, enemy.position);
+    const dist = dir.length();
+    if (dist > 1.2) {
+      dir.normalize();
+      enemy.position.addScaledVector(dir, enemy.userData.speed * delta);
+    }
+  });
+}
 
-    chatHistory.forEach((msg) => {
-      renderMessage(msg.sender, msg.message);
-    });
-  </script>
+// Обновление игрока (движение WASD)
+function updatePlayer(delta) {
+  if (!controls.isLocked) return;
+  const speed = 5;
+  const velocity = new THREE.Vector3();
+  if (keys['KeyW']) velocity.z -= 1;
+  if (keys['KeyS']) velocity.z += 1;
+  if (keys['KeyA']) velocity.x -= 1;
+  if (keys['KeyD']) velocity.x += 1;
+
+  if (velocity.lengthSq() > 0) {
+    velocity.normalize();
+    // движение в направлении камеры
+    const angle = camera.rotation.y;
+    const forward = new THREE.Vector3(0,0,-1).applyEuler(camera.rotation);
+    const right = new THREE.Vector3(1,0,0).applyEuler(camera.rotation);
+
+    player.position.addScaledVector(forward, velocity.z * speed * delta);
+    player.position.addScaledVector(right, velocity.x * speed * delta);
+
+    // ограничим движение по полу
+    player.position.y = 1.6;
+  }
+}
+
+// Главный цикл анимации
+let prevTime = performance.now();
+function animate() {
+  requestAnimationFrame(animate);
+
+  const time = performance.now();
+  const delta = (time - prevTime)/1000;
+
+  updatePlayer(delta);
+  updateEnemies(delta);
+  updateBullets(delta);
+
+  prevTime = time;
+
+  renderer.render(scene, camera);
+}
+</script>
 </body>
 </html>
