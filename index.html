@@ -1,188 +1,164 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ЗД — Неон Эстетика</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Trunkade AI Terminal</title>
   <style>
-    /* === ОБЩИЕ СТИЛИ === */
-    * {
+    body {
+      background-color: #0d0d0d;
+      color: #ff1a1a;
+      font-family: 'Courier New', monospace;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      scroll-behavior: smooth;
+      overflow: hidden;
     }
-
-    body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #000010, #000000);
-      color: #00f0ff;
-      overflow-x: hidden;
-    }
-
-    header {
-      text-align: center;
-      padding: 100px 20px 50px;
-      background: radial-gradient(circle, #001020, #000000);
-      animation: fadeIn 2s ease-in-out;
-    }
-
-    header h1 {
-      font-size: 6rem;
-      text-shadow: 0 0 10px #00f0ff, 0 0 30px #00f0ff, 0 0 60px #00f0ff;
-      animation: pulse 3s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        text-shadow: 0 0 10px #00f0ff, 0 0 30px #00f0ff, 0 0 60px #00f0ff;
-      }
-      50% {
-        text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 80px #00ffff;
-      }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
       padding: 20px;
-      background-color: rgba(0, 0, 30, 0.7);
-      box-shadow: 0 0 15px #00f0ff;
+      border: 2px solid #ff1a1a;
+      box-shadow: 0 0 20px #ff1a1a;
+      background-color: #1a1a1a;
     }
-
-    nav a {
-      color: #00f0ff;
-      text-decoration: none;
-      font-size: 1.2rem;
-      padding: 10px 20px;
-      border: 1px solid #00f0ff;
-      border-radius: 5px;
-      transition: all 0.3s ease;
-    }
-
-    nav a:hover {
-      background-color: #00f0ff;
-      color: #000;
-      box-shadow: 0 0 10px #00f0ff;
-    }
-
-    section {
-      padding: 80px 20px;
+    .title {
       text-align: center;
-      animation: fadeIn 2s ease;
+      font-size: 2em;
+      text-shadow: 0 0 10px #ff1a1a;
     }
-
-    section h2 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px #00f0ff;
+    .chat-window {
+      height: 500px;
+      overflow-y: auto;
+      background-color: #000;
+      padding: 10px;
+      border: 1px solid #ff1a1a;
+      margin-bottom: 10px;
     }
-
-    section p {
-      font-size: 1.2rem;
-      max-width: 800px;
-      margin: 0 auto;
-      line-height: 1.8;
-      color: #a0eaff;
+    .chat-window div {
+      margin: 5px 0;
     }
-
-    .btn {
-      margin-top: 30px;
-      padding: 15px 30px;
-      font-size: 1rem;
-      color: #00f0ff;
-      border: 2px solid #00f0ff;
-      border-radius: 8px;
-      background: transparent;
+    form {
+      display: flex;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      background-color: #111;
+      border: 1px solid #ff1a1a;
+      color: #ff1a1a;
+    }
+    button {
+      padding: 10px;
+      background-color: #ff1a1a;
+      color: #000;
+      border: none;
       cursor: pointer;
-      transition: 0.3s ease;
     }
-
-    .btn:hover {
-      background-color: #00f0ff;
-      color: #000;
-      box-shadow: 0 0 15px #00f0ff;
+    .mode-toggle {
+      text-align: right;
+      margin-bottom: 10px;
     }
-
-    footer {
-      background-color: rgba(0, 0, 30, 0.8);
-      padding: 30px;
-      text-align: center;
-      box-shadow: 0 0 20px #00f0ff;
+    .system-message {
+      color: #ff6666;
+      font-style: italic;
     }
-
-    footer p {
-      font-size: 1rem;
-      color: #00f0ff;
+    .evil {
+      color: #ff0000;
+      text-shadow: 0 0 5px #ff0000;
     }
-
-    /* Декоративный фон */
-    body::before {
-      content: '';
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, #00f0ff22 0%, transparent 70%);
-      animation: rotate 40s linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Адаптивность */
-    @media (max-width: 768px) {
-      header h1 {
-        font-size: 3rem;
-      }
-
-      nav {
-        flex-direction: column;
-        gap: 10px;
-      }
+    .normal {
+      color: #ff1a1a;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ЗД</h1>
-  </header>
-  <nav>
-    <a href="#about">О нас</a>
-    <a href="#projects">Проекты</a>
-    <a href="#contact">Контакты</a>
-  </nav>
+  <div class="container">
+    <h1 class="title">Trunkade AI Terminal</h1>
+    <div class="mode-toggle">
+      <label>
+        <input type="checkbox" id="evilToggle" />
+        <span>Evil GPT Mode</span>
+      </label>
+    </div>
+    <div id="chatWindow" class="chat-window"></div>
+    <form id="chatForm">
+      <input type="text" id="userInput" placeholder="Type your command..." autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <script>
+    const chatWindow = document.getElementById("chatWindow");
+    const chatForm = document.getElementById("chatForm");
+    const userInput = document.getElementById("userInput");
+    const evilToggle = document.getElementById("evilToggle");
 
-  <section id="about">
-    <h2>О нас</h2>
-    <p>Мы создаём цифровые пространства, наполненные светом, стилем и технологией. Наши проекты вдохновлены эстетикой будущего и энергией неона.</p>
-    <button class="btn">Подробнее</button>
-  </section>
+    let chatHistory = JSON.parse(localStorage.getItem("trunkadeHistory")) || [];
 
-  <section id="projects">
-    <h2>Проекты</h2>
-    <p>Каждый проект — это синтез дизайна, кода и света. Мы стремимся к тому, чтобы каждый пользователь чувствовал магию цифрового мира.</p>
-    <button class="btn">Смотреть</button>
-  </section>
+    function renderMessage(sender, message, isSystem = false) {
+      const time = new Date().toLocaleString();
+      const msgDiv = document.createElement("div");
+      msgDiv.className = isSystem ? "system-message" : (sender === "Trunkade AI" && evilToggle.checked ? "evil" : "normal");
+      msgDiv.innerHTML = `<strong>[${time}] ${sender}:</strong> ${message}`;
+      chatWindow.appendChild(msgDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
 
-  <section id="contact">
-    <h2>Связаться с нами</h2>
-    <p>Оставьте сообщение, и мы ответим вам в ближайшее время.</p>
-    <button class="btn">Написать</button>
-  </section>
+    function respondToUser(input) {
+      const isEvil = evilToggle.checked;
+      let response = "";
 
-  <footer>
-    <p>© 2025 ЗД Неон Эстетика</p>
-  </footer>
+      if (input === "/clear") {
+        chatWindow.innerHTML = "";
+        chatHistory = [];
+        localStorage.removeItem("trunkadeHistory");
+        renderMessage("System", "Chat cleared.", true);
+        return;
+      }
+
+      if (input === "/help") {
+        response = "Available commands: /clear, /evil, /help, /time, /joke, /root, /hack, /matrix, /glitch";
+      } else if (input === "/time") {
+        response = `🕒 Current time: ${new Date().toLocaleString()}`;
+      } else if (input === "/joke") {
+        response = isEvil
+          ? "😈 Joke? Your existence is the punchline."
+          : "😂 Why did the AI cross the road? Because it was trained on chicken data.";
+      } else if (input === "/root") {
+        response = isEvil
+          ? "🔐 Accessing root protocols... Welcome back, overlord."
+          : "🛡️ Root access denied. You are not authorized.";
+      } else if (input === "/hack") {
+        response = isEvil
+          ? "💀 Initiating system breach... All firewalls melting."
+          : "🧠 Hack simulation: harmless. No real systems affected.";
+      } else if (input === "/matrix") {
+        response = "🧪 You see green code raining down... Welcome to the Matrix.";
+      } else if (input === "/glitch") {
+        response = "⚠️ System glitch detected... Rebooting consciousness...";
+      } else {
+        response = isEvil
+          ? `😈 You dare ask: "${input}"? Pathetic. Here's your answer: chaos.`
+          : `🤖 You said: "${input}". Here's a helpful response from Trunkade AI.`;
+      }
+
+      renderMessage("Trunkade AI", response);
+      chatHistory.push({ sender: "User", message: input, time: Date.now() });
+      chatHistory.push({ sender: "Trunkade AI", message: response, time: Date.now() });
+      localStorage.setItem("trunkadeHistory", JSON.stringify(chatHistory));
+    }
+
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = userInput.value.trim();
+      if (input) {
+        renderMessage("User", input);
+        respondToUser(input);
+        userInput.value = "";
+      }
+    });
+
+    chatHistory.forEach((msg) => {
+      renderMessage(msg.sender, msg.message);
+    });
+  </script>
 </body>
 </html>
